@@ -1,5 +1,6 @@
 const {
-  validateUser,
+  validateSignUp,
+  validateAuthenticate,
   signup,
   authenticate,
   listUsers,
@@ -34,8 +35,8 @@ const answerAuth = require('./middlewares/answerAuth');
 const router = require('express').Router();
 
 //authentication
-router.post('/signup', validateUser, signup);
-router.post('/authenticate', validateUser, authenticate);
+router.post('/signup', validateSignUp, signup);
+router.post('/authenticate', validateAuthenticate, authenticate);
 
 //users
 router.get('/users', listUsers);

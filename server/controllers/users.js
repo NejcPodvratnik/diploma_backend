@@ -1,5 +1,6 @@
 const User = require('../models/user');
 const jwtDecode = require('jwt-decode');
+const { validate } = require('deep-email-validator');
 const { body, validationResult } = require('express-validator');
 
 const { createToken, hashPassword, verifyPassword } = require('../utils/authentication');
@@ -8,15 +9,21 @@ exports.signup = async (req, res) => {
   const result = validationResult(req);
   if (!result.isEmpty()) {
     const errors = result.array({ onlyFirstError: true });
-    return res.status(422).json({ errors });
+    return res.status(422).json({ message: errors[0].param + " " + errors[0].msg });
   }
 
   try {
-    const { username } = req.body;
+    const { username, email } = req.body;
+
+    const {valid, reason, validators} = await validate(email);
+
+    if (!valid)
+      return res.status(422).json({ message: "email does not exist" });
 
     const hashedPassword = await hashPassword(req.body.password);
 
     const userData = {
+      email: email,
       username: username.toLowerCase(),
       password: hashedPassword
     };
@@ -31,6 +38,16 @@ exports.signup = async (req, res) => {
       });
     }
 
+    const existingEmail = await User.findOne({
+      email: userData.email
+    });
+
+    if (existingEmail) {
+      return res.status(400).json({
+        message: 'Email is already in use.'
+      });
+    }
+
     const newUser = new User(userData);
     const savedUser = await newUser.save();
 
@@ -39,8 +56,9 @@ exports.signup = async (req, res) => {
       const decodedToken = jwtDecode(token);
       const expiresAt = decodedToken.exp;
 
-      const { username, role, id, created, profilePhoto } = savedUser;
+      const { email,username, role, id, created, profilePhoto } = savedUser;
       const userInfo = {
+        email,
         username,
         role,
         id,
@@ -70,17 +88,18 @@ exports.authenticate = async (req, res) => {
   const result = validationResult(req);
   if (!result.isEmpty()) {
     const errors = result.array({ onlyFirstError: true });
-    return res.status(422).json({ errors });
+    return res.status(422).json({ message: errors[0].param + " " + errors[0].msg });
   }
+
   try {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
     const user = await User.findOne({
-      username: username.toLowerCase()
+      email: email,
     });
 
     if (!user) {
       return res.status(403).json({
-        message: 'Wrong username or password.'
+        message: 'Wrong email or password.'
       });
     }
 
@@ -90,8 +109,8 @@ exports.authenticate = async (req, res) => {
       const token = createToken(user);
       const decodedToken = jwtDecode(token);
       const expiresAt = decodedToken.exp;
-      const { username, role, id, created, profilePhoto } = user;
-      const userInfo = { username, role, id, created, profilePhoto };
+      const { email, username, role, id, created, profilePhoto } = user;
+      const userInfo = { email, username, role, id, created, profilePhoto };
 
       res.json({
         message: 'Authentication successful!',
@@ -139,7 +158,19 @@ exports.find = async (req, res, next) => {
   }
 };
 
-exports.validateUser = [
+exports.validateSignUp = [
+
+  body('email')
+    .exists()
+    .trim()
+    .withMessage('is required')
+
+    .notEmpty()
+    .withMessage('cannot be blank')
+    
+    .isEmail()
+    .withMessage('is in wrong format'),
+
   body('username')
     .exists()
     .trim()
@@ -153,6 +184,34 @@ exports.validateUser = [
 
     .matches(/^[a-zA-Z0-9_-]+$/)
     .withMessage('contains invalid characters'),
+
+  body('password')
+    .exists()
+    .trim()
+    .withMessage('is required')
+
+    .notEmpty()
+    .withMessage('cannot be blank')
+
+    .isLength({ min: 6 })
+    .withMessage('must be at least 6 characters long')
+
+    .isLength({ max: 50 })
+    .withMessage('must be at most 50 characters long')
+];
+
+exports.validateAuthenticate = [
+
+  body('email')
+    .exists()
+    .trim()
+    .withMessage('is required')
+
+    .notEmpty()
+    .withMessage('cannot be blank')
+    
+    .isEmail()
+    .withMessage('is in wrong format'),
 
   body('password')
     .exists()

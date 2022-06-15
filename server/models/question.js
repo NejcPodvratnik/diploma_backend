@@ -16,6 +16,9 @@ const questionSchema = new Schema({
   tags: [{ type: String, required: true }],
   score: { type: Number, default: 0 },
   votes: [voteSchema],
+  favorites: [{
+    type: Schema.Types.ObjectId,
+  }],
   comments: [commentSchema],
   answers: [answerSchema],
   created: { type: Date, default: Date.now },
@@ -77,7 +80,16 @@ questionSchema.methods = {
     if (!answer) throw new Error('Answer not found');
     answer.remove();
     return this.save();
-  }
+  },
+
+  favorite: function (id) {
+    const existingId = this.favorites.find((v) => v.equals(id));
+    if (existingId) 
+      this.favorites.pull(existingId);
+    else
+      this.favorites.push(id);    
+    return this.save();
+  },
 };
 
 questionSchema.pre(/^find/, function () {

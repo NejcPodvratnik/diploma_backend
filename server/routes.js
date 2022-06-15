@@ -15,7 +15,8 @@ const {
   listQuestions,
   listByTags,
   listByUser,
-  removeQuestion
+  removeQuestion,
+  favoriteQuestion
 } = require('./controllers/questions');
 const {
   loadAnswers,
@@ -46,10 +47,11 @@ router.get('/user/:username', find);
 //questions
 router.param('question', loadQuestions);
 router.post('/questions', [requireAuth, questionValidate], createQuestion);
+router.post('/question', listQuestions);
 router.get('/question/:question', show);
-router.get('/question', listQuestions);
-router.get('/questions/:tags', listByTags);
+//router.get('/questions/:tags', listByTags);
 router.get('/question/user/:username', listByUser);
+router.get('/question/favorite/:question', [requireAuth], favoriteQuestion);
 router.delete('/question/:question', [requireAuth, questionAuth], removeQuestion);
 
 //tags

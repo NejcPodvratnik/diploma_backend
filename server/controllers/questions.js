@@ -19,11 +19,12 @@ exports.createQuestion = async (req, res, next) => {
   const result = validationResult(req);
   if (!result.isEmpty()) {
     const errors = result.array({ onlyFirstError: true });
-    return res.status(422).json({ errors });
+    return res.status(422).json({ message: errors[0].param + " " + errors[0].msg });
   }
   try {
-    const { title, tags, text } = req.body;
+    var { title, tags, text } = req.body;
     const author = req.user.id;
+    tags = tags.slice(1, -1).split(", ");
     const question = await Question.create({
       title,
       author,
@@ -52,14 +53,22 @@ exports.show = async (req, res, next) => {
 
 exports.listQuestions = async (req, res, next) => {
   try {
-    const { sortType = '-score' } = req.body;
-    const questions = await Question.find().sort(sortType);
+    var { sortType = '-score', tags, search } = req.body;
+    var questions;
+
+    if(tags == undefined || tags == "[]") {
+      questions = await Question.find({ title: { $regex: search, $options: 'i' } }).sort(sortType);
+    } else {
+      //tags = tags.slice(1, -1).split(", ");
+      questions = await Question.find({ tags: { $all: tags }, title: { $regex: search, $options: 'i' } }).sort(sortType);
+    }
     res.json(questions);
   } catch (error) {
     next(error);
   }
 };
 
+/*
 exports.listByTags = async (req, res, next) => {
   try {
     const { sortType = '-score', tags } = req.params;
@@ -69,6 +78,7 @@ exports.listByTags = async (req, res, next) => {
     next(error);
   }
 };
+*/
 
 exports.listByUser = async (req, res, next) => {
   try {
@@ -101,6 +111,15 @@ exports.loadComment = async (req, res, next, id) => {
     return next(error);
   }
   next();
+};
+
+exports.favoriteQuestion = async (req, res, next) => {
+  try {
+    req.question.favorite(req.user.id);
+    res.status(201).json(req.question);
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.questionValidate = [

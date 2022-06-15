@@ -53,15 +53,17 @@ exports.show = async (req, res, next) => {
 
 exports.listQuestions = async (req, res, next) => {
   try {
-    var { sortType = '-score', tags, search } = req.body;
-    var questions;
+    var { sortType = '-score', tags, search, favorite } = req.body;
 
-    if(tags == undefined || tags == "[]") {
-      questions = await Question.find({ title: { $regex: search, $options: 'i' } }).sort(sortType);
-    } else {
-      //tags = tags.slice(1, -1).split(", ");
-      questions = await Question.find({ tags: { $all: tags }, title: { $regex: search, $options: 'i' } }).sort(sortType);
+    var filters = {title: { $regex: search, $options: 'i' }};
+    if(tags != undefined && tags != "[]") {
+      tags = tags.slice(1, -1).split(", ");
+      filters = {  ...filters, tags: { $all: tags } };
     }
+    if(favorite != "") 
+      filters = { ...filters, favorites: favorite};
+
+    const questions = await Question.find(filters).sort(sortType);
     res.json(questions);
   } catch (error) {
     next(error);
@@ -116,7 +118,7 @@ exports.loadComment = async (req, res, next, id) => {
 exports.favoriteQuestion = async (req, res, next) => {
   try {
     req.question.favorite(req.user.id);
-    res.status(201).json(req.question);
+    res.status(200).json(req.question);
   } catch (error) {
     next(error);
   }

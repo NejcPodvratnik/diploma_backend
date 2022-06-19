@@ -53,15 +53,20 @@ exports.show = async (req, res, next) => {
 
 exports.listQuestions = async (req, res, next) => {
   try {
-    var { sortType = '-score', tags, search, favorite } = req.body;
-
+    var { sortType = '-score', tags, search, favorite, userId } = req.body;
     var filters = {title: { $regex: search, $options: 'i' }};
+
     if(tags != undefined && tags != "[]") {
       tags = tags.slice(1, -1).split(", ");
       filters = {  ...filters, tags: { $all: tags } };
     }
     if(favorite != "") 
       filters = { ...filters, favorites: favorite};
+    if(userId != "")
+    {
+      const author = await User.findById(userId);
+      filters = { ...filters, author: author.id};
+    }
 
     const questions = await Question.find(filters).sort(sortType);
     res.json(questions);

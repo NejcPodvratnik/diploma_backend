@@ -90,6 +90,12 @@ questionSchema.methods = {
       this.favorites.push(id);    
     return this.save();
   },
+
+  toggleHelpful: function (id) {
+    const answer = this.answers.id(id);
+    answer.helpful = !answer.helpful; 
+    return this.save();
+  },
 };
 
 questionSchema.pre(/^find/, function () {

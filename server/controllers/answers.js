@@ -16,7 +16,7 @@ exports.createAnswer = async (req, res, next) => {
   const result = validationResult(req);
   if (!result.isEmpty()) {
     const errors = result.array({ onlyFirstError: true });
-    return res.status(422).json({ errors });
+    return res.status(422).json({ message: errors[0].param + " " + errors[0].msg });
   }
 
   try {
@@ -24,8 +24,8 @@ exports.createAnswer = async (req, res, next) => {
     const { text } = req.body;
 
     const question = await req.question.addAnswer(id, text);
-
-    res.status(201).json(question);
+    
+    res.status(201).json(question.answers[question.answers.length - 1]);
   } catch (error) {
     next(error);
   }
@@ -35,6 +35,17 @@ exports.removeAnswer = async (req, res, next) => {
   try {
     const { answer } = req.params;
     const question = await req.question.removeAnswer(answer);
+    res.json(question);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.helpfulAnswer = async (req, res, next) => {
+  try {
+    console.log("hello");
+    const { answer } = req.params;
+    const question = await req.question.toggleHelpful(answer);
     res.json(question);
   } catch (error) {
     next(error);

@@ -14,7 +14,8 @@ const answerSchema = new Schema({
   text: { type: String, required: true },
   score: { type: Number, default: 0 },
   votes: [voteSchema],
-  comments: [commentSchema]
+  comments: [commentSchema],
+  helpful: { type: Boolean, default: false },
 });
 
 answerSchema.set('toJSON', { getters: true });

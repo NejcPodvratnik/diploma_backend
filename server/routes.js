@@ -16,7 +16,8 @@ const {
   listByTags,
   listByUser,
   removeQuestion,
-  favoriteQuestion
+  favoriteQuestion,
+  profile
 } = require('./controllers/questions');
 const {
   loadAnswers,
@@ -44,6 +45,7 @@ router.post('/authenticate', validateAuthenticate, authenticate);
 router.get('/users', listUsers);
 router.get('/users/:search', search);
 router.get('/user/:username', find);
+router.get('/users/profile/:id', profile);
 
 //questions
 router.param('question', loadQuestions);

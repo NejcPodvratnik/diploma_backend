@@ -129,6 +129,44 @@ exports.favoriteQuestion = async (req, res, next) => {
   }
 };
 
+exports.profile = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+    const questions = await Question.find();
+
+    var questionsAsked = 0, answersGiven = 0;
+    var helpfulAnswers = 0, answerScore = 0, questionScore = 0;
+
+    questions.forEach(question => {
+      if(question.author.id == userId)
+      {
+        questionsAsked++;
+        questionScore += question.score;
+      }
+      question.answers.forEach(answer => {
+        if(answer.author.id == userId)
+        {
+          answersGiven++;
+          answerScore += answer.score;
+          if(answer.helpful)
+            helpfulAnswers++;
+        }
+      });
+    });
+    res.json({
+      username: user.username,
+      questionsAsked,
+      answersGiven,
+      helpfulAnswers,
+      answerScore,
+      questionScore
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.questionValidate = [
   body('title')
     .exists()

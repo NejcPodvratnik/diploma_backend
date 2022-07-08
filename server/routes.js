@@ -34,6 +34,7 @@ const requireAuth = require('./middlewares/requireAuth');
 const questionAuth = require('./middlewares/questionAuth');
 const commentAuth = require('./middlewares/commentAuth');
 const answerAuth = require('./middlewares/answerAuth');
+const cannotVoteSelf = require('./middlewares/cannotVoteSelf');
 
 const router = require('express').Router();
 
@@ -69,9 +70,9 @@ router.get('/answer/helpful/:question/:answer', [requireAuth, questionAuth], hel
 router.delete('/answer/:question/:answer', [requireAuth, answerAuth], removeAnswer);
 
 //votes
-router.get('/votes/upvote/:question/:answer?', requireAuth, upvote);
-router.get('/votes/downvote/:question/:answer?', requireAuth, downvote);
-router.get('/votes/unvote/:question/:answer?', requireAuth, unvote);
+router.get('/votes/upvote/:question/:answer?', [requireAuth, cannotVoteSelf], upvote);
+router.get('/votes/downvote/:question/:answer?', [requireAuth, cannotVoteSelf], downvote);
+router.get('/votes/unvote/:question/:answer?', [requireAuth, cannotVoteSelf], unvote);
 
 //comments
 router.param('comment', loadComments);

@@ -51,6 +51,7 @@ questionSchema.methods = {
       }
     } else if (vote !== 0) {
       // new vote
+      console.log(vote);
       this.score += vote;
       this.votes.push({ user, vote });
     }

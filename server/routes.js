@@ -24,7 +24,8 @@ const {
   answerValidate,
   createAnswer,
   removeAnswer,
-  helpfulAnswer
+  helpfulAnswer,
+  updateAnswer
 } = require('./controllers/answers');
 const { listPopulerTags, searchTags, listTags } = require('./controllers/tags');
 const { upvote, downvote, unvote } = require('./controllers/votes');
@@ -67,6 +68,7 @@ router.get('/tags', listTags);
 router.param('answer', loadAnswers);
 router.post('/answer/:question', [requireAuth, answerValidate], createAnswer);
 router.get('/answer/helpful/:question/:answer', [requireAuth, questionAuth], helpfulAnswer);
+router.put('/answer/:question/:answer', [requireAuth, answerValidate], updateAnswer);
 router.delete('/answer/:question/:answer', [requireAuth, answerAuth], removeAnswer);
 
 //votes

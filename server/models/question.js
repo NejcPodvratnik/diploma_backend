@@ -63,6 +63,7 @@ questionSchema.methods = {
     this.comments.push({ author, body });
     return this.save();
   },
+  
 
   removeComment: function (id) {
     const comment = this.comments.id(id);
@@ -73,6 +74,15 @@ questionSchema.methods = {
 
   addAnswer: function (author, text) {
     this.answers.push({ author, text });
+    return this.save();
+  },
+
+  updateAnswer: function (id, text) {
+    const answer = this.answers.id(id);
+    const index = this.answers.indexOf(answer);
+    this.answers[index].text = text;
+    this.answers[index].created = Date.now();
+    //console.log(Date.now());
     return this.save();
   },
 

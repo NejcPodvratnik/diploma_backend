@@ -56,11 +56,12 @@ exports.signup = async (req, res) => {
       const decodedToken = jwtDecode(token);
       const expiresAt = decodedToken.exp;
 
-      const { email,username, role, id, created, profilePhoto } = savedUser;
+      const { email,username, role, isPromotedToDiamond, id, created, profilePhoto } = savedUser;
       const userInfo = {
         email,
         username,
         role,
+        isPromotedToDiamond,
         id,
         created,
         profilePhoto
@@ -109,8 +110,8 @@ exports.authenticate = async (req, res) => {
       const token = createToken(user);
       const decodedToken = jwtDecode(token);
       const expiresAt = decodedToken.exp;
-      const { email, username, role, id, created, profilePhoto } = user;
-      const userInfo = { email, username, role, id, created, profilePhoto };
+      const { email, username, role, isPromotedToDiamond, id, created, profilePhoto } = user;
+      const userInfo = { email, username, role, isPromotedToDiamond, id, created, profilePhoto };
 
       res.json({
         message: 'Authentication successful!',
@@ -151,8 +152,18 @@ exports.search = async (req, res, next) => {
 
 exports.find = async (req, res, next) => {
   try {
-    const users = await User.findOne({ username: req.params.username });
+    const users = await User.findById(req.params.id );
     res.json(users);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.promoteToDiamond = async (req, res, next) => {
+  try {
+    var user = await User.findById(req.params.id);
+    user.promoteToDiamond();
+    res.status(200).json(user);
   } catch (error) {
     next(error);
   }

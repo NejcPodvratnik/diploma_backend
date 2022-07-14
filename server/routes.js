@@ -5,7 +5,8 @@ const {
   authenticate,
   listUsers,
   search,
-  find
+  find,
+  promoteToDiamond
 } = require('./controllers/users');
 const {
   loadQuestions,
@@ -36,6 +37,7 @@ const questionAuth = require('./middlewares/questionAuth');
 const commentAuth = require('./middlewares/commentAuth');
 const answerAuth = require('./middlewares/answerAuth');
 const cannotVoteSelf = require('./middlewares/cannotVoteSelf');
+const requireAdmin = require('./middlewares/requireAdmin');
 
 const router = require('express').Router();
 
@@ -46,8 +48,9 @@ router.post('/authenticate', validateAuthenticate, authenticate);
 //users
 router.get('/users', listUsers);
 router.get('/users/:search', search);
-router.get('/user/:username', find);
+router.get('/user/:id', find);
 router.get('/users/profile/:id', profile);
+router.get('/users/promoteToDiamond/:id', [requireAuth, requireAdmin], promoteToDiamond);
 
 //questions
 router.param('question', loadQuestions);

@@ -6,6 +6,7 @@ const userModel = new Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, required: true, default: 'user' },
+  isPromotedToDiamond: { type: Boolean, required: true, default: false },
   profilePhoto: {
     type: String,
     default: function () {
@@ -22,6 +23,13 @@ userModel.options.toJSON.transform = (doc, ret) => {
   delete obj.__v;
   delete obj.password;
   return obj;
+};
+
+userModel.methods = {
+  promoteToDiamond: function () {
+    this.isPromotedToDiamond = true;
+    return this.save();
+  },
 };
 
 module.exports = mongoose.model('user', userModel);

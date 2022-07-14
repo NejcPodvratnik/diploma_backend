@@ -157,7 +157,9 @@ exports.profile = async (req, res, next) => {
       });
     });
     res.json({
+      id: user._id,
       username: user.username,
+      isPromotedToDiamond: user.isPromotedToDiamond,
       questionsAsked,
       answersGiven,
       helpfulAnswers,

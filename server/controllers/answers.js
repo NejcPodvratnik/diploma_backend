@@ -85,6 +85,6 @@ exports.answerValidate = [
     .isLength({ min: 10 })
     .withMessage('must be at least 10 characters long')
 
-    .isLength({ max: 30000 })
-    .withMessage('must be at most 30000 characters long')
+    .isLength({ max: 500 })
+    .withMessage('must be at most 500 characters long')
 ];

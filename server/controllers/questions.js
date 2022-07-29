@@ -55,7 +55,7 @@ exports.show = async (req, res, next) => {
 
 exports.listQuestions = async (req, res, next) => {
   try {
-    var { sortType = '-score', tags, search, favorite, userId } = req.body;
+    var { sortType = '-score', tags, search, favorite = false, userId } = req.body;
     var filters = {title: { $regex: search, $options: 'i' }};
 
     if(tags != undefined && tags != "[]") {
@@ -180,7 +180,10 @@ exports.questionValidate = [
     .notEmpty()
     .withMessage('cannot be blank')
 
-    .isLength({ max: 180 })
+    .isLength({ min: 10 })
+    .withMessage('must be at least 10 characters long')
+
+    .isLength({ max: 60 })
     .withMessage('must be at most 180 characters long'),
 
   body('text')
@@ -191,8 +194,8 @@ exports.questionValidate = [
     .isLength({ min: 10 })
     .withMessage('must be at least 10 characters long')
 
-    .isLength({ max: 5000 })
-    .withMessage('must be at most 5000 characters long'),
+    .isLength({ max: 280 })
+    .withMessage('must be at most 280 characters long'),
 
   body('tags').exists().withMessage('is required')
 ];

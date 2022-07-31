@@ -14,8 +14,6 @@ const {
   createQuestion,
   show,
   listQuestions,
-  listByTags,
-  listByUser,
   removeQuestion,
   favoriteQuestion,
   profile
@@ -28,13 +26,14 @@ const {
   helpfulAnswer,
   updateAnswer
 } = require('./controllers/answers');
-const { listPopulerTags, searchTags, listTags } = require('./controllers/tags');
-const { upvote, downvote, unvote } = require('./controllers/votes');
-const { loadComments, validate, createComment, removeComment } = require('./controllers/comments');
+const { 
+  upvote,
+  downvote,
+  unvote
+} = require('./controllers/votes');
 
 const requireAuth = require('./middlewares/requireAuth');
 const questionAuth = require('./middlewares/questionAuth');
-const commentAuth = require('./middlewares/commentAuth');
 const answerAuth = require('./middlewares/answerAuth');
 const cannotVoteSelf = require('./middlewares/cannotVoteSelf');
 const requireAdmin = require('./middlewares/requireAdmin');
@@ -57,17 +56,8 @@ router.param('question', loadQuestions);
 router.post('/questions', [requireAuth, questionValidate], createQuestion);
 router.post('/question', listQuestions);
 router.get('/question/:question', show);
-//router.get('/questions/:tags', listByTags);
-//router.get('/question/user/:username', listByUser);
 router.get('/question/favorite/:question', [requireAuth], favoriteQuestion);
 router.delete('/question/:question', [requireAuth, questionAuth], removeQuestion);
-
-//tags
-//router.get('/tags/populertags', listPopulerTags);
-//router.get('/tags/:tag', searchTags);
-//router.get('/tags', listTags);
-
-//NOTE: DODAL ANSWERAUTH PRI PUT
 
 //answers
 router.param('answer', loadAnswers);
@@ -80,12 +70,6 @@ router.delete('/answer/:question/:answer', [requireAuth, answerAuth], removeAnsw
 router.get('/votes/upvote/:question/:answer?', [requireAuth, cannotVoteSelf], upvote);
 router.get('/votes/downvote/:question/:answer?', [requireAuth, cannotVoteSelf], downvote);
 router.get('/votes/unvote/:question/:answer?', [requireAuth, cannotVoteSelf], unvote);
-
-//comments
-//router.param('comment', loadComments);
-//router.post('/comment/:question/:answer?', [requireAuth, validate], createComment);
-//router.delete('/comment/:question/:comment', [requireAuth, commentAuth], removeComment);
-//router.delete('/comment/:question/:answer/:comment', [requireAuth, commentAuth], removeComment);
 
 module.exports = (app) => {
   app.use('/api', router);

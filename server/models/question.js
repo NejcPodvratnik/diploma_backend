@@ -49,7 +49,6 @@ questionSchema.methods = {
       }
     } else if (vote !== 0) {
       // new vote
-      console.log(vote);
       this.score += vote;
       this.votes.push({ user, vote });
     }
@@ -93,7 +92,7 @@ questionSchema.methods = {
     return this.save();
   },
 };
-
+/*
 questionSchema.pre(/^find/, function () {
   this.populate('author')
     .populate('comments.author', '-role')
@@ -107,6 +106,20 @@ questionSchema.post('save', function (doc, next) {
     .populate('author')
     .populate('answers.author', '-role')
     .populate('answers.comments.author', '-role')
+    .execPopulate()
+    .then(() => next());
+});
+*/
+
+questionSchema.pre(/^find/, function () {
+  this.populate('author')
+    .populate('answers.author')
+});
+
+questionSchema.post('save', function (doc, next) {
+  doc
+    .populate('author')
+    .populate('answers.author')
     .execPopulate()
     .then(() => next());
 });

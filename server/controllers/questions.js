@@ -80,7 +80,7 @@ exports.listQuestions = async (req, res, next) => {
 exports.removeQuestion = async (req, res, next) => {
   try {
     await req.question.remove();
-    res.json({ message: 'Your question successfully deleted.' });
+    res.status(204).json({ message: 'Your question is successfully deleted.' });
   } catch (error) {
     next(error);
   }
@@ -99,6 +99,7 @@ exports.profile = async (req, res, next) => {
   try {
     const userId = req.params.id;
     const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found.' });
     const questions = await Question.find();
 
     var questionsAsked = 0, answersGiven = 0;

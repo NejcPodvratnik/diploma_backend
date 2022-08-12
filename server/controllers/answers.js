@@ -39,7 +39,7 @@ exports.removeAnswer = async (req, res, next) => {
   try {
     const { answer } = req.params;
     const question = await req.question.removeAnswer(answer);
-    res.json(question);
+    res.status(204).json(question);
   } catch (error) {
     next(error);
   }
@@ -67,7 +67,7 @@ exports.updateAnswer = async (req, res, next) => {
     const { text } = req.body;
     const question = await req.question.updateAnswer(answer, text);
     
-    res.status(201).json(question.answers.id(answer));
+    res.json(question.answers.id(answer));
   } catch (error) {
     next(error);
   }

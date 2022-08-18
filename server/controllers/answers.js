@@ -39,7 +39,7 @@ exports.removeAnswer = async (req, res, next) => {
   try {
     const { answer } = req.params;
     const question = await req.question.removeAnswer(answer);
-    res.status(204).json(question);
+    res.status(200).json(question);
   } catch (error) {
     next(error);
   }

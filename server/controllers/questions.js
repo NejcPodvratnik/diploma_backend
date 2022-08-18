@@ -80,7 +80,7 @@ exports.listQuestions = async (req, res, next) => {
 exports.removeQuestion = async (req, res, next) => {
   try {
     await req.question.remove();
-    res.status(204).json({ message: 'Your question is successfully deleted.' });
+    res.status(200).json({ message: 'Your question is successfully deleted.' });
   } catch (error) {
     next(error);
   }

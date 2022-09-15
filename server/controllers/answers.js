@@ -29,7 +29,7 @@ exports.createAnswer = async (req, res, next) => {
 
     const question = await req.question.addAnswer(id, text);
     
-    res.status(201).json(question.answers[question.answers.length - 1]);
+    res.status(201).json(question);
   } catch (error) {
     next(error);
   }
@@ -67,7 +67,7 @@ exports.updateAnswer = async (req, res, next) => {
     const { text } = req.body;
     const question = await req.question.updateAnswer(answer, text);
     
-    res.json(question.answers.id(answer));
+    res.json(question);
   } catch (error) {
     next(error);
   }

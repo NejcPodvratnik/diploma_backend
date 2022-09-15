@@ -152,7 +152,7 @@ exports.search = async (req, res, next) => {
 
 exports.find = async (req, res, next) => {
   try {
-    const users = await User.findById(req.params.id );
+    const users = await User.findById(req.params.id);
     res.json(users);
   } catch (error) {
     next(error);

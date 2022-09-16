@@ -138,7 +138,7 @@ exports.updateQuestion = async (req, res, next) => {
     return res.status(422).json({ message: errors[0].param + " " + errors[0].msg });
   }
 
-  if(!req.question.answers.isEmpty)
+  if(req.question.answers.length != 0)
     return res.status(422).json({ message: "Cannot update question when answer has already been provided." });
 
   try {

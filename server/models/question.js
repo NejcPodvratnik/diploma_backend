@@ -91,6 +91,14 @@ questionSchema.methods = {
     answer.helpful = !answer.helpful; 
     return this.save();
   },
+
+  updateQuestion: function (text, title, tags) {
+    this.title = title;
+    this.text = text;
+    this.tags = tags;
+    this.created = Date.now();
+    return this.save();
+  },
 };
 /*
 questionSchema.pre(/^find/, function () {

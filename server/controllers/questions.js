@@ -131,6 +131,28 @@ exports.profile = async (req, res, next) => {
   }
 };
 
+exports.updateQuestion = async (req, res, next) => {
+  const result = validationResult(req);
+  if (!result.isEmpty()) {
+    const errors = result.array({ onlyFirstError: true });
+    return res.status(422).json({ message: errors[0].param + " " + errors[0].msg });
+  }
+
+  if(!req.question.answers.isEmpty)
+    return res.status(422).json({ message: "Cannot update question when answer has already been provided." });
+
+  try {
+    var { title, text, tags } = req.body;
+    if(tags == "[]")
+      return res.status(422).json({ message: "Choose at least one tag" });
+    tags = tags.slice(1, -1).split(", ");
+    const question = await req.question.updateQuestion(text,title,tags);
+    res.json(question);
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.questionValidate = [
   body('title')
     .exists()

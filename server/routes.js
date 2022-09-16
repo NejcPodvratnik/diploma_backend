@@ -16,7 +16,8 @@ const {
   listQuestions,
   removeQuestion,
   favoriteQuestion,
-  profile
+  profile,
+  updateQuestion
 } = require('./controllers/questions');
 const {
   loadAnswers,
@@ -57,6 +58,7 @@ router.post('/questions', [requireAuth, questionValidate], createQuestion);
 router.post('/question', listQuestions);
 router.get('/question/:question', show);
 router.get('/question/favorite/:question', [requireAuth], favoriteQuestion);
+router.put('/question/:question', [requireAuth,questionAuth, questionValidate], updateQuestion);
 router.delete('/question/:question', [requireAuth, questionAuth], removeQuestion);
 
 //answers

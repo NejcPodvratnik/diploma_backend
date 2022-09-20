@@ -166,7 +166,7 @@ exports.questionValidate = [
     .withMessage('must be at least 10 characters long')
 
     .isLength({ max: 60 })
-    .withMessage('must be at most 180 characters long'),
+    .withMessage('must be at most 60 characters long'),
 
   body('text')
     .exists()
@@ -179,5 +179,7 @@ exports.questionValidate = [
     .isLength({ max: 280 })
     .withMessage('must be at most 280 characters long'),
 
-  body('tags').exists().withMessage('is required')
+  body('tags')
+    .exists()
+    .withMessage('is required')
 ];

@@ -1,8 +1,8 @@
 module.exports = {
   port: process.env.PORT || 8080,
   db: {
-    prod: process.env.DATABASE_URL || 'mongodb://localhost/stackoverflow-clone',
-    test: 'mongodb://localhost/stackoverflow-test',
+    prod: process.env.DB_URL || 'mongodb://localhost:27018/stackoverflow-clone',
+    test: process.env.DB_URL_TEST || 'mongodb://localhost:27018/stackoverflow-test',
     options: {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -11,7 +11,7 @@ module.exports = {
     }
   },
   jwt: {
-    secret: process.env.JWT_SECRET || 'development_secret',
-    expiry: '7d'
+    secret: process.env.TOKEN_SECRET || 'development_secret',
+    expiry: '90d'
   }
 };

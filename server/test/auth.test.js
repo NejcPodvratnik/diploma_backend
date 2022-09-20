@@ -5,6 +5,7 @@ const app = require('../app');
 const { validUser } = require('./factories');
 const User = mongoose.model('user');
 const { hashPassword } = require('../utils/authentication');
+const faker = require('faker');
 
 process.env.TEST_SUITE = 'auth';
 
@@ -16,6 +17,11 @@ describe('auth endpoints', () => {
     long: 'a'.repeat(33),
     blank: ''
   };
+  const email = {
+    nonExisting: 'new@meni.si',
+    invalid: 'user!$@',
+    blank: ''
+  };
   const password = {
     wrong: 'incorrect',
     short: 'aaa',
@@ -25,55 +31,45 @@ describe('auth endpoints', () => {
 
   beforeEach(async () => {
     user = validUser();
+    console.log('--------------------------------');
+    console.log(user);
+    console.log('--------------------------------');
     const hashedPassword = await hashPassword(user.password);
     await new User({ ...user, password: hashedPassword }).save();
   });
 
   describe('/authenticate', () => {
-    test('rejects requests with no credentials', (done) => {
+    it('rejects requests with no credentials', (done) => {
       request(app)
         .post('/api/authenticate')
         .expect((res) => {
-          expect(res.body.errors).toBeDefined();
-          res.body.errors.forEach((err) => {
-            expect(err.msg).toContain('required');
-          });
+          expect(res.body.message).toBeDefined();
+          expect(res.body.message).toContain('required');
         })
         .expect(422, done);
     });
 
-    test('reject requests with incorrect name', (done) => {
+    it('reject requests with incorrect email', (done) => {
       request(app)
         .post('/api/authenticate')
-        .send({ ...user, username: username.nonExisting })
+        .send({ ...user, email: email.nonExisting })
         .expect((res) => {
-          expect(res.body.message).toContain('Wrong username or password.');
+          expect(res.body.message).toContain('Wrong email or password.');
         })
         .expect(403, done);
     });
 
-    test('reject requests with incorrect password', (done) => {
+    it('reject requests with incorrect password', (done) => {
       request(app)
         .post('/api/authenticate')
         .send({ ...user, password: password.wrong })
         .expect((res) => {
-          expect(res.body.message).toContain('Wrong username or password.');
+          expect(res.body.message).toContain('Wrong email or password.');
         })
         .expect(403, done);
     });
 
-    test('rejects requests with invalid name', (done) => {
-      request(app)
-        .post('/api/authenticate')
-        .send({ ...user, username: username.invalid })
-        .expect((res) => {
-          expect(res.body.errors).toBeDefined();
-          expect(res.body.errors[0].msg).toContain('invalid');
-        })
-        .expect(422, done);
-    });
-
-    test('returns a valid auth token', (done) => {
+    it('returns a valid auth token', (done) => {
       request(app)
         .post('/api/authenticate')
         .send(user)
@@ -81,119 +77,113 @@ describe('auth endpoints', () => {
         .expect((res) => {
           const { token } = res.body;
           const decodedToken = jwtDecode(token);
-          expect(decodedToken.username).toEqual(user.username);
+          expect(decodedToken.email).toEqual(user.email);
         })
         .expect(200, done);
     });
   });
 
   describe('/signup', () => {
-    test('rejects requests with missing fields', (done) => {
+    it('rejects requests with missing fields', (done) => {
       request(app)
         .post('/api/signup')
         .expect((res) => {
-          expect(res.body.errors).toBeDefined();
-          res.body.errors.forEach((err) => {
-            expect(err.msg).toContain('required');
-          });
+          expect(res.body.message).toBeDefined();
+          expect(res.body.message).toContain('required');
         })
         .expect(422, done);
     });
 
-    test('rejects requests with blank name', (done) => {
+    it('rejects requests with blank name', (done) => {
       request(app)
         .post('/api/signup')
-        .send({ ...user, username: username.blank })
+        .send({ ...user, email: email.blank })
         .expect((res) => {
-          expect(res.body.errors).toBeDefined();
-          expect(res.body.errors[0].msg).toContain('cannot be blank');
+          expect(res.body.message).toBeDefined();
+          expect(res.body.message).toContain('cannot be blank');
         })
         .expect(422, done);
     });
 
-    test('rejects requests with blank password', (done) => {
+    it('rejects requests with blank password', (done) => {
       request(app)
         .post('/api/signup')
         .send({ ...user, password: password.blank })
         .expect((res) => {
-          expect(res.body.errors).toBeDefined();
-          expect(res.body.errors[0].msg).toContain('cannot be blank');
+          expect(res.body.message).toBeDefined();
+          expect(res.body.message).toContain('cannot be blank');
         })
         .expect(422, done);
     });
 
-    test('rejects requests with invalid name', (done) => {
+    it('rejects requests with invalid name', (done) => {
       request(app)
         .post('/api/signup')
-        .send({ ...user, username: username.invalid })
+        .send({ ...user, email: email.invalid })
         .expect((res) => {
-          expect(res.body.errors).toBeDefined;
-          expect(res.body.errors[0].msg).toContain('invalid');
+          expect(res.body.message).toBeDefined;
+          expect(res.body.message).toContain('wrong');
         })
         .expect(422, done);
     });
 
-    test('rejects requests with name that is too long', (done) => {
-      request(app)
-        .post('/api/signup')
-        .send({ ...user, username: username.long })
-        .expect((res) => {
-          expect(res.body.errors).toBeDefined();
-          expect(res.body.errors[0].msg).toContain(
-            'at most 32 characters long'
-          );
-        })
-        .expect(422, done);
-    });
-
-    test('rejects request with password that is too long', (done) => {
+    it('rejects request with password that is too long', (done) => {
       request(app)
         .post('/api/signup')
         .send({ ...user, password: password.long })
         .expect((res) => {
-          expect(res.body.errors).toBeDefined();
-          expect(res.body.errors[0].msg).toContain(
-            'at most 50 characters long'
-          );
+          expect(res.body.message).toBeDefined();
+          expect(res.body.message).toContain('at most 50 characters long');
         })
         .expect(422, done);
     });
 
-    test('rejects requests with password that is too short', (done) => {
+    it('rejects requests with password that is too short', (done) => {
       request(app)
         .post('/api/signup')
         .send({ ...user, password: password.short })
         .expect((res) => {
-          expect(res.body.errors).toBeDefined();
-          expect(res.body.errors[0].msg).toContain(
-            'at least 6 characters long'
-          );
+          expect(res.body.message).toBeDefined();
+          expect(res.body.message).toContain('at least 6 characters long');
         })
         .expect(422, done);
     });
 
-    test('rejects requests with existing name', (done) => {
+    it('rejects requests with existing email', (done) => {
+      request(app)
+        .post('/api/signup')
+        .send({ ...user, username: faker.name.firstName().toLowerCase() })
+        .expect((res) => {
+          expect(res.body.message).toBeDefined();
+          expect(res.body.message).toContain('already');
+        })
+        .expect(422, done);
+    });
+    it('rejects requests with existing username', (done) => {
+      request(app)
+        .post('/api/signup')
+        .send({ ...user, email: faker.internet.email() })
+        .expect((res) => {
+          expect(res.body.message).toBeDefined();
+          expect(res.body.message).toContain('already');
+        })
+        .expect(422, done);
+    });
+
+    it('creates a new user and returns a valid auth token', (done) => {
+      user.email = 'A' + user.email; //one user already in db
+      user.username = 'A' + user.username;
+
       request(app)
         .post('/api/signup')
         .send(user)
-        .expect((res) => {
-          expect(res.body.message).toBeDefined();
-          expect(res.body.message).toContain('Username already exists.');
-        })
-        .expect(400, done);
-    });
-
-    test('creates a new user and returns a valid auth token', (done) => {
-      request(app)
-        .post('/api/signup')
-        .send({ ...user, username: username.nonExisting })
-        .expect('Content-Type', /json/)
+        //  .expect('Content-Type', /json/)
         .expect((res) => {
           const { token } = res.body;
           const decodedToken = jwtDecode(token);
-          expect(decodedToken.username).toEqual(username.nonExisting);
+          expect(decodedToken.email.toLowerCase()).toEqual(user.email.toLowerCase());
         })
-        .expect(200, done);
+        .expect(201, done);
     });
   });
 });

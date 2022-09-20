@@ -1,6 +1,6 @@
-## Diploma Backend
+## Backend QA
 
-This is the the backend part of my stack overflow clone diploma.
+Error codes [HTTP Errors](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#client_error_responses)
 
 ## :rocket: Tech Stack
 

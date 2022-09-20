@@ -9,42 +9,41 @@ exports.signup = async (req, res) => {
   const result = validationResult(req);
   if (!result.isEmpty()) {
     const errors = result.array({ onlyFirstError: true });
-    return res.status(422).json({ message: errors[0].param + " " + errors[0].msg });
+    return res.status(422).json({ message: errors[0].param + ' ' + errors[0].msg });
   }
 
   try {
     const { username, email } = req.body;
-
-    const {valid, reason, validators} = await validate(email);
-
-    if (!valid)
-      return res.status(422).json({ message: "email does not exist" });
-
+    if (process.env.TEST_SUITE === undefined) {
+      //Skip this strong email check (smtp...) if testing
+      const { valid, reason, validators } = await validate(email);
+      if (!valid) return res.status(422).json({ message: `email is not valid (${reason})` });
+    }
     const hashedPassword = await hashPassword(req.body.password);
 
     const userData = {
-      email: email,
-      username: username.toLowerCase(),
+      email: email.toLowerCase(),
+      username: username,
       password: hashedPassword
     };
 
     const existingUsername = await User.findOne({
       username: userData.username
-    });
+    }).exec();
 
     if (existingUsername) {
-      return res.status(400).json({
+      return res.status(422).json({
         message: 'Username already exists.'
       });
     }
 
     const existingEmail = await User.findOne({
       email: userData.email
-    });
+    }).exec();
 
     if (existingEmail) {
-      return res.status(400).json({
-        message: 'Email is already in use.'
+      return res.status(422).json({
+        message: 'Email already exists.'
       });
     }
 
@@ -56,7 +55,7 @@ exports.signup = async (req, res) => {
       const decodedToken = jwtDecode(token);
       const expiresAt = decodedToken.exp;
 
-      const { email,username, role, isPromotedToDiamond, id, created, profilePhoto } = savedUser;
+      const { email, username, role, isPromotedToDiamond, id, created, profilePhoto } = savedUser;
       const userInfo = {
         email,
         username,
@@ -89,13 +88,13 @@ exports.authenticate = async (req, res) => {
   const result = validationResult(req);
   if (!result.isEmpty()) {
     const errors = result.array({ onlyFirstError: true });
-    return res.status(422).json({ message: errors[0].param + " " + errors[0].msg });
+    return res.status(422).json({ message: errors[0].param + ' ' + errors[0].msg });
   }
 
   try {
     const { email, password } = req.body;
     const user = await User.findOne({
-      email: email,
+      email: email
     });
 
     if (!user) {
@@ -121,7 +120,7 @@ exports.authenticate = async (req, res) => {
       });
     } else {
       res.status(403).json({
-        message: 'Wrong username or password.'
+        message: 'Wrong email or password.'
       });
     }
   } catch (error) {

@@ -1,6 +1,9 @@
 const faker = require('faker');
 
 exports.validUser = () => ({
-  username: faker.name.firstName().toLowerCase(),
-  password: 'password'
+  email: faker.internet.email().toLowerCase(),
+  username: faker.name.firstName(),
+  password: 'password',
+  role: 'user',
+  isPromotedToDiamond: false
 });

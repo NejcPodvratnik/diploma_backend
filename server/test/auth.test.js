@@ -152,7 +152,7 @@ describe('auth endpoints', () => {
     it('rejects requests with existing email', (done) => {
       request(app)
         .post('/api/signup')
-        .send({ ...user, username: faker.name.firstName().toLowerCase() })
+        .send({ ...user, username: faker.name.firstName() })
         .expect((res) => {
           expect(res.body.message).toBeDefined();
           expect(res.body.message).toContain('already');
@@ -162,7 +162,7 @@ describe('auth endpoints', () => {
     it('rejects requests with existing username', (done) => {
       request(app)
         .post('/api/signup')
-        .send({ ...user, email: faker.internet.email() })
+        .send({ ...user, email: faker.internet.email().toLowerCase() })
         .expect((res) => {
           expect(res.body.message).toBeDefined();
           expect(res.body.message).toContain('already');
@@ -171,8 +171,8 @@ describe('auth endpoints', () => {
     });
 
     it('creates a new user and returns a valid auth token', (done) => {
-      user.email = 'A' + user.email; //one user already in db
-      user.username = 'A' + user.username;
+      user.email = 'a' + user.email; //one user already in db
+      user.username = 'a' + user.username;
 
       request(app)
         .post('/api/signup')

@@ -38,7 +38,7 @@ exports.signup = async (req, res) => {
     }
 
     const existingEmail = await User.findOne({
-      email: userData.email
+      email: userData.email.toLowerCase()
     }).exec();
 
     if (existingEmail) {

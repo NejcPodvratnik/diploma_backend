@@ -24,8 +24,8 @@ exports.createQuestion = async (req, res, next) => {
   try {
     var { title, tags, text } = req.body;
     const author = req.user.id;
-    if(tags == "[]")
-      return res.status(422).json({ message: "choose at least one tag" });
+    if (tags == '[]' || tags.trim().length == 0)
+      return res.status(422).json({ message: 'choose at least one tag' });
     tags = tags.slice(1, -1).split(", ");
     const question = await Question.create({
       title,

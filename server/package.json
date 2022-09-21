@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "jest --runInBand --watch",
+    "test": "jest --runInBand",
     "testOne": "jest --runInBand --watch -- test/answer.test.js"
   },
   "keywords": [

@@ -56,6 +56,13 @@ describe.only('answer endpoints', () => {
         .send();
       expect(res.statusCode).toEqual(400);
     });
+    it('vote for question no token', async () => {
+      const res = await request(app)
+        .get('/api/votes/upvote/' + question.id)
+        // .set('Authorization', 'Bearer ' + user.token)
+        .send();
+      expect(res.statusCode).toEqual(401);
+    });
   });
 
   describe('/answer', () => {
@@ -84,6 +91,14 @@ describe.only('answer endpoints', () => {
         .set('Authorization', 'Bearer ' + user.token)
         .send();
       expect(res.statusCode).toEqual(400);
+    });
+    it('3vote with no token', async () => {
+      expect(answer.id).toBeDefined();
+      const res = await request(app)
+        .get('/api/votes/upvote/' + question.id + '/' + answer.id)
+        //        .set('Authorization', 'Bearer ' + user.token)
+        .send();
+      expect(res.statusCode).toEqual(401);
     });
   });
 });
